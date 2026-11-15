@@ -1,0 +1,8 @@
+{
+  "name": "Remix SI-UJIAN - Pembuat Naskah Soal Ujian Sekolah Otomatis",
+  "description": "Generator naskah soal ujian resmi (PSAS, STS, PSAJ, SAT, AM) otomatis dengan format dinas rapi, siap cetak, lengkap dengan kisi-kisi, kunci jawaban, dan lembar jawaban siswa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

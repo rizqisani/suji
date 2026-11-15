@@ -1,0 +1,12 @@
+node_modules/
+build/
+dist/
+coverage/
+test-output/
+.aistudio/
+.codebase-memory/
+public/assets/aistudio/
+.DS_Store
+*.log
+.env*
+!.env.example

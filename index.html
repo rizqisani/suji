@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        try {
+          var realFetch = typeof window !== 'undefined' && window.fetch ? window.fetch.bind(window) : null;
+          var currentFetch = realFetch;
+          try {
+            Object.defineProperty(window, 'fetch', {
+              get: function() { return currentFetch; },
+              set: function(val) { currentFetch = val; },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (e) {}
+
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            try {
+              var protoDesc = Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
+              if (protoDesc && !protoDesc.set && protoDesc.configurable) {
+                Object.defineProperty(Window.prototype, 'fetch', {
+                  get: function() { return currentFetch; },
+                  set: function(val) { currentFetch = val; },
+                  configurable: true,
+                  enumerable: true
+                });
+              }
+            } catch (e) {}
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <title>SI-UJIAN - Pembuat Naskah Soal Ujian Sekolah Otomatis</title>
+    <meta name="description" content="Generator naskah soal ujian resmi (PSAS, STS, PSAJ, SAT, AM) otomatis dengan format dinas rapi, siap cetak, lengkap dengan kisi-kisi, kunci jawaban, dan lembar jawaban siswa." />
+    <meta property="og:title" content="SI-UJIAN - Pembuat Naskah Soal Ujian Sekolah Otomatis" />
+    <meta property="og:description" content="Generator naskah soal ujian resmi (PSAS, STS, PSAJ, SAT, AM) otomatis dengan format dinas rapi, siap cetak, lengkap dengan kisi-kisi, kunci jawaban, dan lembar jawaban siswa." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
