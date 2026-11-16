@@ -20,6 +20,7 @@ import {
   Menu,
   Settings2,
   LogOut,
+  RefreshCw,
 } from 'lucide-react';
 
 export type ViewTab = 'naskah' | 'kunci' | 'kisi-kisi' | 'rubrik' | 'kartu-soal' | 'ljs';
@@ -32,6 +33,7 @@ interface NavbarProps {
   onOpenBank: () => void;
   onOpenPrintModal: () => void;
   onOpenAiSettings: () => void;
+  onCheckForUpdates?: () => void | Promise<void>;
   aiGatewayConfigured: boolean;
   onLogout: () => void;
   showLogout?: boolean;
@@ -48,6 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenBank,
   onOpenPrintModal,
   onOpenAiSettings,
+  onCheckForUpdates,
   aiGatewayConfigured,
   onLogout,
   showLogout = true,
@@ -235,6 +238,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Settings2 className="w-3.5 h-3.5" />
             <span>AI Gateway{aiGatewayConfigured ? ' · Aktif' : ''}</span>
           </button>
+          {onCheckForUpdates && (
+            <button
+              onClick={() => void onCheckForUpdates()}
+              title="Periksa pembaruan SI-Ujian"
+              className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-300 rounded-lg flex items-center space-x-1.5 transition"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-blue-700" />
+              <span>Cek Update</span>
+            </button>
+          )}
           {showLogout && (
             <button
               onClick={onLogout}

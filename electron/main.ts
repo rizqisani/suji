@@ -2,7 +2,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Server } from 'node:http';
-import { app, BrowserWindow, dialog, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import electronUpdater from 'electron-updater';
 import { closeDatabase } from '../src/server/database';
 import { setupServer } from '../server';
@@ -11,6 +11,7 @@ const { autoUpdater } = electronUpdater;
 
 let mainWindow: BrowserWindow | null = null;
 let backendServer: Server | undefined;
+let updateCheckInProgress = false;
 
 function prepareDataDirectory(): { directory: string; databasePath: string; keyPath: string } {
   const directory = app.getPath('userData');
@@ -86,6 +87,7 @@ function createWindow(origin: string): void {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      preload: path.join(app.getAppPath(), 'dist-electron', 'preload.mjs'),
     },
   });
 
@@ -103,6 +105,49 @@ function createWindow(origin: string): void {
 }
 
 function configureUpdates(): void {
+  ipcMain.handle('check-for-updates', async () => {
+    if (!app.isPackaged) {
+      await dialog.showMessageBox(mainWindow ?? undefined, {
+        type: 'info',
+        title: 'Cek pembaruan SI-Ujian',
+        message: 'Pengecekan update hanya tersedia pada aplikasi desktop hasil build.',
+        noLink: true,
+      });
+      return { status: 'latest' as const };
+    }
+
+    if (updateCheckInProgress) return { status: 'checking' as const };
+
+    updateCheckInProgress = true;
+    try {
+      const result = await autoUpdater.checkForUpdates();
+      if (!result?.updateInfo) {
+        await dialog.showMessageBox(mainWindow ?? undefined, {
+          type: 'info',
+          title: 'Cek pembaruan SI-Ujian',
+          message: 'SI-Ujian sudah menggunakan versi terbaru.',
+          noLink: true,
+        });
+      }
+      return {
+        status: result?.updateInfo ? ('available' as const) : ('latest' as const),
+        version: result?.updateInfo?.version,
+      };
+    } catch (error) {
+      console.error('Tidak dapat memeriksa GitHub Releases:', error);
+      await dialog.showMessageBox(mainWindow ?? undefined, {
+        type: 'error',
+        title: 'Cek pembaruan gagal',
+        message: 'Pembaruan belum dapat diperiksa.',
+        detail: error instanceof Error ? error.message : String(error),
+        noLink: true,
+      });
+      return { status: 'error' as const };
+    } finally {
+      updateCheckInProgress = false;
+    }
+  });
+
   if (!app.isPackaged) return;
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = false;

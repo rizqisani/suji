@@ -17,7 +17,8 @@
     "lint": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
     "build:desktop:main": "esbuild electron/main.ts --bundle --platform=node --format=esm --target=node22 --packages=external --outfile=dist-electron/main.mjs",
-    "build:desktop": "npm run build:desktop:main && vite build --mode desktop",
+    "build:desktop:preload": "esbuild electron/preload.ts --bundle --platform=browser --format=esm --target=es2022 --outfile=dist-electron/preload.mjs",
+    "build:desktop": "npm run build:desktop:main && npm run build:desktop:preload && vite build --mode desktop",
     "dist:desktop": "npm run build:desktop && electron-builder --publish never && npm rebuild better-sqlite3"
   },
   "dependencies": {

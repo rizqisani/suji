@@ -421,6 +421,11 @@ export default function App() {
         onOpenBank={() => setIsBankDrawerOpen(true)}
         onOpenPrintModal={() => setIsPrintModalOpen(true)}
         onOpenAiSettings={() => setIsAiGatewaySettingsOpen(true)}
+        onCheckForUpdates={
+          isDesktopApp && window.electronAPI
+            ? () => window.electronAPI!.checkForUpdates()
+            : undefined
+        }
         aiGatewayConfigured={Boolean(aiGatewayConfig)}
         onLogout={handleLogout}
         showLogout={!isDesktopApp}
@@ -437,9 +442,9 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Container with Left Foldable Sidebar */}
+      {/* Main Container with Fixed Right Sidebar */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Foldable Sidebar */}
+        {/* Right Foldable Sidebar (kept outside the scrollable workspace) */}
         <Sidebar
           exam={currentExam}
           activeTab={activeTab}
@@ -450,7 +455,6 @@ export default function App() {
           onOpenTextToExam={() => setIsTextToExamOpen(true)}
           onOpenKopModal={() => setIsKopModalOpen(true)}
           onOpenBank={() => setIsBankDrawerOpen(true)}
-          onOpenPrintModal={() => setIsPrintModalOpen(true)}
           onShuffleExam={handleShuffleToPaketB}
           onOpenSingleQuestionModal={() => setIsSingleQuestionModalOpen(true)}
           onOpenValidateModal={() => setIsValidateModalOpen(true)}

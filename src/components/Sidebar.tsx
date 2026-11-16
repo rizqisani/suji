@@ -1,7 +1,6 @@
 import React from 'react';
 import { ExamPackage } from '../types/exam';
 import { ViewTab } from './Navbar';
-import { exportExamToWord, exportExamToPdf } from '../utils/exportWord';
 import {
   FileCheck2,
   KeyRound,
@@ -13,16 +12,12 @@ import {
   FileText,
   Building2,
   FolderArchive,
-  Printer,
-  Download,
   Shuffle,
   PlusCircle,
   ChevronLeft,
   ChevronRight,
   GraduationCap,
   X,
-  FileCode,
-  CheckCircle2,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -36,7 +31,6 @@ interface SidebarProps {
   onOpenTextToExam: () => void;
   onOpenKopModal: () => void;
   onOpenBank: () => void;
-  onOpenPrintModal: () => void;
   onShuffleExam: () => void;
   onOpenSingleQuestionModal: () => void;
   onOpenValidateModal?: () => void;
@@ -55,7 +49,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenTextToExam,
   onOpenKopModal,
   onOpenBank,
-  onOpenPrintModal,
   onShuffleExam,
   onOpenSingleQuestionModal,
   onOpenValidateModal,
@@ -63,9 +56,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   onMobileClose,
 }) => {
-  const [isExportingDocx, setIsExportingDocx] = React.useState(false);
-  const [isExportingPdf, setIsExportingPdf] = React.useState(false);
-
   // Question counts
   const mcCount = exam.multipleChoice?.length || 0;
   const cmcCount = exam.complexMultipleChoice?.length || 0;
@@ -82,24 +72,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'kartu-soal', label: 'Kartu Soal Dinas', shortLabel: 'Kartu', icon: Grid3X3 },
     { id: 'ljs', label: 'Lembar Jawaban (LJS)', shortLabel: 'LJS', icon: Layers },
   ];
-
-  const handleExportDocx = async () => {
-    setIsExportingDocx(true);
-    try {
-      await exportExamToWord(exam, activeTab);
-    } finally {
-      setIsExportingDocx(false);
-    }
-  };
-
-  const handleExportPdf = async () => {
-    setIsExportingPdf(true);
-    try {
-      await exportExamToPdf(exam, activeTab);
-    } finally {
-      setIsExportingPdf(false);
-    }
-  };
 
   const sidebarContent = (
     <div className="h-full flex flex-col justify-between overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300">
@@ -334,70 +306,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Section: Ekspor & Cetak Cepat */}
-        <div className="p-3 border-b border-slate-200 space-y-1">
-          {!isCollapsed && (
-            <div className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Ekspor & Cetak
-            </div>
-          )}
-
-          {/* Unduh Word .docx */}
-          <button
-            onClick={handleExportDocx}
-            disabled={isExportingDocx}
-            title="Unduh Naskah Ujian Format Word (.docx) Asli"
-            className={`w-full flex items-center rounded-xl transition ${
-              isCollapsed
-                ? 'justify-center p-2.5'
-                : 'px-3 py-2 text-xs font-semibold'
-            } text-blue-900 bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/80 disabled:opacity-50`}
-          >
-            <Download className="w-4 h-4 text-blue-700 shrink-0" />
-            {!isCollapsed && (
-              <span className="ml-2.5 truncate">
-                {isExportingDocx ? 'Membuat Word...' : 'Unduh Word (.docx)'}
-              </span>
-            )}
-          </button>
-
-          {/* Unduh PDF Otentik */}
-          <button
-            onClick={handleExportPdf}
-            disabled={isExportingPdf}
-            title="Unduh Naskah Ujian Format PDF Otentik"
-            className={`w-full flex items-center rounded-xl transition ${
-              isCollapsed
-                ? 'justify-center p-2.5'
-                : 'px-3 py-2 text-xs font-semibold'
-            } text-rose-900 bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/80 disabled:opacity-50`}
-          >
-            <Download className="w-4 h-4 text-rose-700 shrink-0" />
-            {!isCollapsed && (
-              <span className="ml-2.5 truncate">
-                {isExportingPdf ? 'Mengonversi PDF...' : 'Unduh PDF (.pdf)'}
-              </span>
-            )}
-          </button>
-
-          {/* Pusat Cetak / Simpan PDF */}
-          <button
-            onClick={() => {
-              onOpenPrintModal();
-              if (isMobileOpen) onMobileClose();
-            }}
-            title="Buka Pusat Cetak Dokumen"
-            className={`w-full flex items-center rounded-xl transition ${
-              isCollapsed
-                ? 'justify-center p-2.5'
-                : 'px-3 py-2 text-xs font-semibold'
-            } text-slate-700 hover:bg-slate-100`}
-          >
-            <Printer className="w-4 h-4 text-slate-600 shrink-0" />
-            {!isCollapsed && <span className="ml-2.5 truncate">Pusat Cetak & PDF</span>}
-          </button>
-        </div>
-
         {/* Section: Ringkasan Butir Soal (Expanded Only) */}
         {!isCollapsed && (
           <div className="p-3">
@@ -458,9 +366,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Desktop Sidebar (Foldable) */}
+      {/* Desktop Sidebar: stays fixed while the main workspace scrolls */}
       <aside
-        className={`hidden md:block bg-white border-r border-slate-200 transition-all duration-300 ease-in-out shrink-0 sticky top-0 h-screen z-30 select-none shadow-xs ${
+        className={`hidden md:block order-2 bg-white border-l border-slate-200 transition-all duration-300 ease-in-out shrink-0 sticky top-0 h-full z-30 select-none shadow-xs ${
           isCollapsed ? 'w-16' : 'w-64'
         }`}
       >
@@ -477,7 +385,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
 
           {/* Drawer content */}
-          <div className="relative w-72 max-w-[85vw] bg-white h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200">
+          <div className="relative ml-auto w-72 max-w-[85vw] bg-white h-full shadow-2xl z-10 animate-in slide-in-from-right duration-200">
             {sidebarContent}
           </div>
         </div>
