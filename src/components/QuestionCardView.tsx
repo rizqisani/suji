@@ -11,21 +11,15 @@ import {
 
 interface QuestionCardViewProps {
   exam: ExamPackage;
-  onOpenPrintModal?: () => void;
 }
 
-export const QuestionCardView: React.FC<QuestionCardViewProps> = ({ exam, onOpenPrintModal }) => {
+export const QuestionCardView: React.FC<QuestionCardViewProps> = ({ exam }) => {
   const { kopConfig, examSummary, multipleChoice, complexMultipleChoice, matching, shortAnswer, essay } = exam;
 
   return (
     <div className="space-y-4">
       <DocumentToolbar
         title="Kartu Soal Ujian (Analisis Butir Soal Format Dinas)"
-        elementId="printable-question-cards"
-        docFileName={`Kartu_Soal_${examSummary.examType}_${examSummary.subject}`}
-        docType="kartu-soal"
-        exam={exam}
-        onOpenPrintModal={onOpenPrintModal}
       />
 
       <div className="print-container bg-slate-200/70 p-2 sm:p-6 rounded-2xl flex justify-center">

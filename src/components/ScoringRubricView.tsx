@@ -5,10 +5,9 @@ import { DocumentKopHeader } from './DocumentKopHeader';
 
 interface ScoringRubricViewProps {
   exam: ExamPackage;
-  onOpenPrintModal?: () => void;
 }
 
-export const ScoringRubricView: React.FC<ScoringRubricViewProps> = ({ exam, onOpenPrintModal }) => {
+export const ScoringRubricView: React.FC<ScoringRubricViewProps> = ({ exam }) => {
   const { kopConfig, examSummary, multipleChoice, complexMultipleChoice, matching, shortAnswer, essay, scoringGuidelines } =
     exam;
 
@@ -95,11 +94,6 @@ export const ScoringRubricView: React.FC<ScoringRubricViewProps> = ({ exam, onOp
     <div className="space-y-4">
       <DocumentToolbar
         title="Pedoman Penskoran & Rubrik Penilaian"
-        elementId="printable-rubric"
-        docFileName={`Rubrik_Penskoran_${examSummary.examType}_${examSummary.subject}`}
-        docType="rubrik"
-        exam={exam}
-        onOpenPrintModal={onOpenPrintModal}
       />
 
       <div className="print-container bg-slate-200/70 p-2 sm:p-6 rounded-2xl flex justify-center">

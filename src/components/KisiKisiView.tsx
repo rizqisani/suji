@@ -12,14 +12,12 @@ import { Sparkles, Edit3, Loader2, AlertCircle } from 'lucide-react';
 
 interface KisiKisiViewProps {
   exam: ExamPackage;
-  onOpenPrintModal?: () => void;
   onUpdateExam?: (updated: ExamPackage) => void;
   onNotify?: (msg: string) => void;
 }
 
 export const KisiKisiView: React.FC<KisiKisiViewProps> = ({
   exam,
-  onOpenPrintModal,
   onUpdateExam,
   onNotify,
 }) => {
@@ -237,11 +235,6 @@ export const KisiKisiView: React.FC<KisiKisiViewProps> = ({
     <div className="space-y-4">
       <DocumentToolbar
         title="Kisi-Kisi Penulisan Soal (Matrix Standar Kemdikbud)"
-        elementId="printable-kisi-kisi"
-        docFileName={`Kisi_Kisi_${examSummary.examType}_${examSummary.subject}`}
-        docType="kisi-kisi"
-        exam={exam}
-        onOpenPrintModal={onOpenPrintModal}
       />
 
       {onUpdateExam && (

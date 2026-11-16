@@ -6,10 +6,9 @@ import { resolveStatementLabels } from '../utils/questionHelpers';
 
 interface StudentAnswerSheetViewProps {
   exam: ExamPackage;
-  onOpenPrintModal?: () => void;
 }
 
-export const StudentAnswerSheetView: React.FC<StudentAnswerSheetViewProps> = ({ exam, onOpenPrintModal }) => {
+export const StudentAnswerSheetView: React.FC<StudentAnswerSheetViewProps> = ({ exam }) => {
   const { kopConfig, examSummary, multipleChoice, complexMultipleChoice, matching, shortAnswer, essay } = exam;
 
   // Dynamic section letters across active question types
@@ -31,11 +30,6 @@ export const StudentAnswerSheetView: React.FC<StudentAnswerSheetViewProps> = ({ 
     <div className="space-y-4">
       <DocumentToolbar
         title="Lembar Jawaban Siswa (LJS) Blanko 1 Lembar"
-        elementId="printable-ljs"
-        docFileName={`Lembar_Jawaban_Siswa_${examSummary.examType}_${examSummary.subject}`}
-        docType="ljs"
-        exam={exam}
-        onOpenPrintModal={onOpenPrintModal}
       />
 
       <div className="print-container bg-slate-200/70 p-2 sm:p-6 rounded-2xl flex justify-center">

@@ -518,7 +518,6 @@ export default function App() {
             {activeTab === 'kunci' && (
               <AnswerKeyView
                 exam={currentExam}
-                onOpenPrintModal={() => setIsPrintModalOpen(true)}
                 onUpdateExam={handleUpdateExam}
                 onNotify={showToast}
               />
@@ -527,7 +526,6 @@ export default function App() {
             {activeTab === 'kisi-kisi' && (
               <KisiKisiView
                 exam={currentExam}
-                onOpenPrintModal={() => setIsPrintModalOpen(true)}
                 onUpdateExam={handleUpdateExam}
                 onNotify={showToast}
               />
@@ -536,21 +534,18 @@ export default function App() {
             {activeTab === 'rubrik' && (
               <ScoringRubricView
                 exam={currentExam}
-                onOpenPrintModal={() => setIsPrintModalOpen(true)}
               />
             )}
 
             {activeTab === 'kartu-soal' && (
               <QuestionCardView
                 exam={currentExam}
-                onOpenPrintModal={() => setIsPrintModalOpen(true)}
               />
             )}
 
             {activeTab === 'ljs' && (
               <StudentAnswerSheetView
                 exam={currentExam}
-                onOpenPrintModal={() => setIsPrintModalOpen(true)}
               />
             )}
           </main>

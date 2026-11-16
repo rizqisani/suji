@@ -13,14 +13,12 @@ import {
 
 interface AnswerKeyViewProps {
   exam: ExamPackage;
-  onOpenPrintModal?: () => void;
   onUpdateExam?: (updated: ExamPackage) => void;
   onNotify?: (msg: string) => void;
 }
 
 export const AnswerKeyView: React.FC<AnswerKeyViewProps> = ({
   exam,
-  onOpenPrintModal,
   onUpdateExam,
   onNotify,
 }) => {
@@ -54,11 +52,6 @@ export const AnswerKeyView: React.FC<AnswerKeyViewProps> = ({
     <div className="space-y-4">
       <DocumentToolbar
         title="Kunci Jawaban & Pembahasan Lengkap"
-        elementId="printable-answer-key"
-        docFileName={`Kunci_Jawaban_${examSummary.examType}_${examSummary.subject}`}
-        docType="kunci"
-        exam={exam}
-        onOpenPrintModal={onOpenPrintModal}
       />
 
       {/* Bar Impor & Ekspor JSON Kunci Jawaban */}
