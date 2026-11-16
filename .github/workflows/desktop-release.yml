@@ -26,7 +26,7 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         shell: bash
-        run: npm version "${RELEASE_TAG#v}" --no-git-tag-version --ignore-scripts
+        run: npm version "${RELEASE_TAG#v}" --no-git-tag-version --ignore-scripts --allow-same-version
       - run: npm run dist:desktop
       - uses: actions/upload-artifact@v4
         with:
