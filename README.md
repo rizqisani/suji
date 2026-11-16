@@ -2,16 +2,35 @@
 <img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
 </div>
 
-# Run and deploy your AI Studio app
+# SI-Ujian
 
-This contains everything you need to run your app locally.
+SI-Ujian dapat dijalankan sebagai aplikasi web yang sudah ada atau sebagai aplikasi desktop mandiri.
 
-View your app in AI Studio: https://ai.studio/apps/42e15e65-9c42-4186-a142-e135540a5157
+## Aplikasi desktop
 
-## Run Locally
+Aplikasi desktop membungkus UI dan server lokal dalam satu aplikasi Electron. Node.js, PostgreSQL, dan browser terpisah tidak diperlukan. Pada peluncuran pertama, aplikasi memeriksa sistem dan akses penyimpanan, lalu meminta izin sebelum membuat database SQLite lokal dan kunci enkripsinya. Database dan konfigurasi AI disimpan di direktori data pengguna OS (bukan di samping executable); setiap komputer memiliki datanya sendiri dan tidak tersinkron otomatis. Fitur non-AI dapat digunakan lokal, sedangkan pembuatan soal AI memerlukan koneksi internet dan layanan AI yang dikonfigurasi.
 
-**Prerequisites:** Node.js 22+ and PostgreSQL
+Paket tersedia untuk Windows (installer dan portable `.exe`), macOS (`.dmg`), serta Linux (`.AppImage` dan `.deb`). Gunakan installer Windows untuk pembaruan otomatis; executable portable Windows tidak dapat diperbarui otomatis. Aplikasi memeriksa GitHub Releases saat dibuka dan meminta persetujuan sebelum mengunduh serta memasang versi baru.
 
+Untuk membuat rilis lintas platform, push tag versi berikutnya, misalnya `v2.0.1`. Workflow GitHub Actions membangun paket tiap OS lalu menerbitkan artefak dan metadata updater. Paket Windows/macOS saat ini belum ditandatangani, sehingga SmartScreen/Gatekeeper dapat menampilkan peringatan; siapkan sertifikat code-signing dan notarization sebelum distribusi publik yang tepercaya.
+
+Simpan cadangan database `suji.sqlite` dan `encryption.key` bersama-sama. Kunci tersebut diperlukan untuk membaca konfigurasi AI terenkripsi. Data lama di server PostgreSQL tidak dipindahkan otomatis ke instalasi desktop.
+
+### Build desktop dari source
+
+**Prerequisites:** Node.js 22+ dan npm. PostgreSQL tidak diperlukan untuk mode desktop.
+
+```bash
+npm ci
+npm test
+npm run dist:desktop
+```
+
+Artefak dibuat di folder `release/`. Build desktop hanya menghasilkan paket untuk sistem operasi yang sedang digunakan; workflow GitHub Actions membangun ketiga sistem operasi.
+
+## Menjalankan aplikasi web
+
+**Prerequisites:** Node.js 22+ dan PostgreSQL.
 
 1. Install dependencies:
    `npm install`

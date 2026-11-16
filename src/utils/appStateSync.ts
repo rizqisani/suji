@@ -30,6 +30,12 @@ function readLocalAppState(): AppStateSnapshot {
   };
 }
 
+function hasCompleteLocalSnapshot(): boolean {
+  return [STORAGE_KEY_EXAMS, STORAGE_KEY_KOP, STORAGE_KEY_PROFILES].every(
+    (key) => localStorage.getItem(key) !== null
+  );
+}
+
 function applyAppState(state: AppStateSnapshot): void {
   localStorage.setItem(STORAGE_KEY_EXAMS, JSON.stringify(state.exams));
   localStorage.setItem(STORAGE_KEY_KOP, JSON.stringify(state.kopConfig));
@@ -51,13 +57,20 @@ async function requestServerState(method: 'GET' | 'PUT', state?: AppStateSnapsho
 }
 
 export async function initializeAppState(): Promise<void> {
+  const localState = readLocalAppState();
+  if (import.meta.env.MODE === 'desktop' && hasCompleteLocalSnapshot()) {
+    // localStorage changes synchronously, preserving writes that have not reached SQLite yet.
+    await requestServerState('PUT', localState);
+    applyAppState(localState);
+    return;
+  }
+
   const result = await requestServerState('GET');
   if (result.state) {
     applyAppState(result.state);
     return;
   }
 
-  const localState = readLocalAppState();
   await requestServerState('PUT', localState);
   applyAppState(localState);
 }

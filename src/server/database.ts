@@ -1,7 +1,19 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import type Database from 'better-sqlite3';
 import { Pool } from 'pg';
 
+const require = createRequire(import.meta.url);
+type LocalDatabase = InstanceType<typeof Database>;
+
 let pool: Pool | undefined;
+let sqlite: LocalDatabase | undefined;
+
+function isLocalMode(): boolean {
+  return process.env.APP_LOCAL_MODE === 'true';
+}
 
 function getPool(): Pool {
   if (pool) return pool;
@@ -11,6 +23,19 @@ function getPool(): Pool {
   }
   pool = new Pool({ connectionString });
   return pool;
+}
+
+function getLocalDatabase(): LocalDatabase {
+  if (sqlite) return sqlite;
+  const dataDirectory = process.env.APP_DATA_DIR;
+  if (!dataDirectory) {
+    throw new Error('APP_DATA_DIR wajib dikonfigurasi untuk database lokal.');
+  }
+  fs.mkdirSync(dataDirectory, { recursive: true });
+  const SQLiteDatabase = require('better-sqlite3') as typeof Database;
+  sqlite = new SQLiteDatabase(path.join(dataDirectory, 'suji.sqlite'));
+  sqlite.pragma('journal_mode = WAL');
+  return sqlite;
 }
 
 function getEncryptionKey(): Buffer {
@@ -78,6 +103,17 @@ function revealState(state: Record<string, any>): Record<string, any> {
 }
 
 export async function initializeDatabase(): Promise<void> {
+  if (isLocalMode()) {
+    getLocalDatabase().exec(`
+      CREATE TABLE IF NOT EXISTS app_state (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        state TEXT NOT NULL,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    return;
+  }
+
   await getPool().query(`
     CREATE TABLE IF NOT EXISTS app_state (
       id SMALLINT PRIMARY KEY CHECK (id = 1),
@@ -88,6 +124,13 @@ export async function initializeDatabase(): Promise<void> {
 }
 
 export async function loadAppState(): Promise<Record<string, any> | null> {
+  if (isLocalMode()) {
+    const row = getLocalDatabase()
+      .prepare<[number], { state: string }>('SELECT state FROM app_state WHERE id = ?')
+      .get(1);
+    return row ? revealState(JSON.parse(row.state)) : null;
+  }
+
   const result = await getPool().query<{ state: Record<string, any> }>(
     'SELECT state FROM app_state WHERE id = 1'
   );
@@ -96,10 +139,22 @@ export async function loadAppState(): Promise<Record<string, any> | null> {
 
 export async function saveAppState(state: Record<string, any>): Promise<void> {
   const protectedState = protectState(state);
+  if (isLocalMode()) {
+    getLocalDatabase()
+      .prepare('INSERT INTO app_state (id, state, updated_at) VALUES (1, ?, CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET state = excluded.state, updated_at = CURRENT_TIMESTAMP')
+      .run(JSON.stringify(protectedState));
+    return;
+  }
+
   await getPool().query(
     `INSERT INTO app_state (id, state, updated_at)
      VALUES (1, $1::jsonb, NOW())
      ON CONFLICT (id) DO UPDATE SET state = EXCLUDED.state, updated_at = NOW()`,
     [JSON.stringify(protectedState)]
   );
+}
+
+export function closeDatabase(): void {
+  sqlite?.close();
+  sqlite = undefined;
 }

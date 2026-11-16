@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import type { Server } from 'node:http';
 import { GoogleGenAI, Type } from '@google/genai';
 import {
   createSessionToken,
@@ -29,7 +30,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
 
@@ -52,6 +52,9 @@ function setSessionCookie(res: Response, token: string, maxAge: number): void {
 }
 
 app.post('/api/auth/login', (req, res) => {
+  if (process.env.APP_LOCAL_MODE === 'true') {
+    return res.json({ success: true });
+  }
   const { username, password } = req.body || {};
   if (typeof username !== 'string' || typeof password !== 'string' || !verifyLogin(username, password)) {
     return res.status(401).json({ success: false, error: 'Nama pengguna atau kata sandi salah.' });
@@ -62,7 +65,9 @@ app.post('/api/auth/login', (req, res) => {
 
 app.get('/api/auth/session', (req, res) => {
   const token = getSessionToken(req);
-  return res.json({ authenticated: Boolean(token && verifySessionToken(token)) });
+  return res.json({
+    authenticated: process.env.APP_LOCAL_MODE === 'true' || Boolean(token && verifySessionToken(token)),
+  });
 });
 
 app.post('/api/auth/logout', (_req, res) => {
@@ -71,6 +76,7 @@ app.post('/api/auth/logout', (_req, res) => {
 });
 
 app.use('/api', (req, res, next) => {
+  if (process.env.APP_LOCAL_MODE === 'true') return next();
   const token = getSessionToken(req);
   if (!token || !verifySessionToken(token)) {
     return res.status(401).json({ success: false, error: 'Silakan login untuk melanjutkan.' });
@@ -2384,8 +2390,8 @@ Kembalikan \`items\` berisi \`questionType\`, \`questionId\`, \`questionNumber\`
 
 
 // Setup Vite development or production serving
-async function setupServer() {
-  validateAuthConfiguration();
+export async function setupServer(options: { host?: string; port?: number } = {}): Promise<Server> {
+  if (process.env.APP_LOCAL_MODE !== 'true') validateAuthConfiguration();
   await initializeDatabase();
 
   if (process.env.NODE_ENV !== 'production') {
@@ -2400,19 +2406,31 @@ async function setupServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve(__dirname, 'dist');
+    const distPath = process.env.APP_WEB_DIST || path.resolve(__dirname, 'dist');
     app.use(express.static(distPath));
     app.get('*', (_req, res) => {
       res.sendFile(path.resolve(distPath, 'index.html'));
     });
   }
 
-  app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+  const port = options.port ?? Number(process.env.PORT || 3000);
+  const host = options.host ?? (process.env.APP_LOCAL_MODE === 'true' ? '127.0.0.1' : undefined);
+  return new Promise((resolve, reject) => {
+    const server = host
+      ? app.listen(port, host, () => resolve(server))
+      : app.listen(port, () => resolve(server));
+    server.once('error', reject);
   });
 }
 
-setupServer().catch((error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__filename)) {
+  setupServer()
+    .then((server) => {
+      const address = server.address();
+      console.log(`Server running at ${address && typeof address !== 'string' ? address.port : address}`);
+    })
+    .catch((error) => {
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    });
+}

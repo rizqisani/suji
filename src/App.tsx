@@ -46,6 +46,8 @@ import {
   BookOpen,
 } from 'lucide-react';
 
+const isDesktopApp = import.meta.env.MODE === 'desktop';
+
 export default function App() {
   const [authStatus, setAuthStatus] = useState<'loading' | 'login' | 'ready'>('loading');
   const [authError, setAuthError] = useState('');
@@ -114,6 +116,17 @@ export default function App() {
 
   useEffect(() => {
     let active = true;
+    if (isDesktopApp) {
+      prepareAuthenticatedApp().catch((error) => {
+        if (!active) return;
+        setAuthError(error instanceof Error ? error.message : 'Tidak dapat memuat database lokal.');
+        setAuthStatus('login');
+      });
+      return () => {
+        active = false;
+      };
+    }
+
     fetch('/api/auth/session')
       .then(async (response) => {
         if (!response.ok) throw new Error(`Gagal memeriksa sesi (HTTP ${response.status}).`);
@@ -159,6 +172,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
+    if (isDesktopApp) return;
     try {
       const response = await fetch('/api/auth/logout', { method: 'POST' });
       if (!response.ok) throw new Error(`Gagal keluar (HTTP ${response.status}).`);
@@ -401,8 +415,6 @@ export default function App() {
       {/* Navbar with Action controls */}
       <Navbar
         exam={currentExam}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
         onOpenGenerator={() => setIsGeneratorOpen(true)}
         onOpenTextToExam={() => setIsTextToExamOpen(true)}
         onOpenKopModal={() => setIsKopModalOpen(true)}
@@ -411,6 +423,7 @@ export default function App() {
         onOpenAiSettings={() => setIsAiGatewaySettingsOpen(true)}
         aiGatewayConfigured={Boolean(aiGatewayConfig)}
         onLogout={handleLogout}
+        showLogout={!isDesktopApp}
         savedCount={exams.length}
         onToggleSidebar={handleToggleSidebar}
         isSidebarCollapsed={isSidebarCollapsed}
