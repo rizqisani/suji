@@ -48,7 +48,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
-    "electron": "^39.2.3",
+    "electron": "^45.3.2",
     "electron-builder": "^26.0.12",
     "esbuild": "^0.28.0",
     "tailwindcss": "^4.3.3",
@@ -143,8 +143,12 @@
     }
   },
   "allowScripts": {
-    "electron@39.8.10": true,
+    "electron@45.3.2": true,
     "better-sqlite3@12.11.1": true,
     "esbuild@0.28.2": true
+  },
+  "overrides": {
+    "minimatch@^9.0.3": "11.0.8",
+    "minimatch@^10.0.0": "11.0.8"
   }
 }
