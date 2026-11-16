@@ -36,14 +36,7 @@ import { AiGatewayConfig, loadAiGatewayConfig } from './utils/apiHelper';
 import { APP_STATE_CHANGED_EVENT } from './utils/appStateEvents';
 import { initializeAppState, syncAppState } from './utils/appStateSync';
 import {
-  Sparkles,
-  FileText,
-  Printer,
-  Download,
   CheckCircle2,
-  Bookmark,
-  Share2,
-  BookOpen,
 } from 'lucide-react';
 
 const isDesktopApp = import.meta.env.MODE === 'desktop';
@@ -411,28 +404,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col font-sans">
-      {/* Navbar with Action controls */}
-      <Navbar
-        exam={currentExam}
-        onOpenGenerator={() => setIsGeneratorOpen(true)}
-        onOpenTextToExam={() => setIsTextToExamOpen(true)}
-        onOpenKopModal={() => setIsKopModalOpen(true)}
-        onOpenBank={() => setIsBankDrawerOpen(true)}
-        onOpenPrintModal={() => setIsPrintModalOpen(true)}
-        onOpenAiSettings={() => setIsAiGatewaySettingsOpen(true)}
-        onCheckForUpdates={
-          isDesktopApp && window.electronAPI
-            ? () => window.electronAPI!.checkForUpdates()
-            : undefined
-        }
-        aiGatewayConfigured={Boolean(aiGatewayConfig)}
-        onLogout={handleLogout}
-        showLogout={!isDesktopApp}
-        savedCount={exams.length}
-        onToggleSidebar={handleToggleSidebar}
-        isSidebarCollapsed={isSidebarCollapsed}
-      />
+    <div className="h-screen overflow-hidden bg-slate-100 text-slate-900 flex font-sans">
 
       {/* Toast Notification */}
       {toastMessage && (
@@ -442,9 +414,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Container with Fixed Right Sidebar */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Right Foldable Sidebar (kept outside the scrollable workspace) */}
+      {/* Full-height navigation column; it is outside the scrolling workspace. */}
+      <div className="shrink-0">
         <Sidebar
           exam={currentExam}
           activeTab={activeTab}
@@ -462,51 +433,34 @@ export default function App() {
           isMobileOpen={isMobileSidebarOpen}
           onMobileClose={() => setIsMobileSidebarOpen(false)}
         />
+      </div>
 
-        {/* Scrollable Main Workspace */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+      <div className="flex-1 flex min-w-0 flex-col overflow-hidden">
+        <Navbar
+          exam={currentExam}
+          onOpenGenerator={() => setIsGeneratorOpen(true)}
+          onOpenTextToExam={() => setIsTextToExamOpen(true)}
+          onOpenKopModal={() => setIsKopModalOpen(true)}
+          onOpenBank={() => setIsBankDrawerOpen(true)}
+          onOpenPrintModal={() => setIsPrintModalOpen(true)}
+          onOpenAiSettings={() => setIsAiGatewaySettingsOpen(true)}
+          onCheckForUpdates={
+            isDesktopApp && window.electronAPI
+              ? () => window.electronAPI!.checkForUpdates()
+              : undefined
+          }
+          aiGatewayConfigured={Boolean(aiGatewayConfig)}
+          onLogout={handleLogout}
+          showLogout={!isDesktopApp}
+          savedCount={exams.length}
+          onToggleSidebar={handleToggleSidebar}
+          isSidebarCollapsed={isSidebarCollapsed}
+        />
+
+        {/* Only the workspace scrolls; navigation and top actions remain visible. */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {/* Main Content Area */}
           <main className="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-6 space-y-4">
-            {/* Quick Exam Info & Sample Presets Banner (Hidden on print) */}
-            <div className="no-print bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center space-x-3">
-                <div className="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-900 font-black text-xs uppercase">
-                  {currentExam.examSummary.examType}
-                </div>
-                <div>
-                  <h2 className="text-sm font-bold text-slate-900">
-                    {currentExam.examSummary.subject} - {currentExam.examSummary.grade}
-                  </h2>
-                  <p className="text-[11px] text-slate-500">
-                    {currentExam.examSummary.curriculum} · TA {currentExam.examSummary.academicYear} (
-                    {currentExam.examSummary.semester}) · Durasi: {currentExam.examSummary.duration}
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick Preset Selector for Teacher Demo */}
-              <div className="flex items-center space-x-2 text-xs">
-                <span className="text-slate-400 font-medium hidden md:inline">Contoh Template Bawaan:</span>
-                {SAMPLE_EXAMS.map((sample) => (
-                  <button
-                    key={sample.id}
-                    onClick={() => {
-                      setCurrentExam(sample);
-                      showToast(`Memuat template: ${sample.examSummary.subject}`);
-                    }}
-                    className={`px-2.5 py-1 rounded-lg border text-[11px] font-semibold transition ${
-                      currentExam.id === sample.id
-                        ? 'border-blue-600 bg-blue-50 text-blue-800'
-                        : 'border-slate-200 hover:bg-slate-50 text-slate-600'
-                    }`}
-                  >
-                    {sample.examSummary.examType} {sample.examSummary.schoolLevel}:{' '}
-                    {sample.examSummary.subject.split(' ')[0]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Dynamic Document View based on Active Tab */}
             {activeTab === 'naskah' && (
               <ExamDocumentView
@@ -514,7 +468,6 @@ export default function App() {
                 onUpdateExam={handleUpdateExam}
                 onOpenSingleQuestionModal={() => setIsSingleQuestionModalOpen(true)}
                 onShuffleExam={handleShuffleToPaketB}
-                onOpenPrintModal={() => setIsPrintModalOpen(true)}
                 onOpenValidateModal={() => setIsValidateModalOpen(true)}
               />
             )}

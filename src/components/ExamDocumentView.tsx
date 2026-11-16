@@ -17,15 +17,10 @@ import {
   Trash2,
   PlusCircle,
   Shuffle,
-  Printer,
-  Download,
-  FileText,
   CheckCircle,
-  Loader2,
   Wand2,
   ShieldCheck,
 } from 'lucide-react';
-import { exportExamToWord, exportExamToPdf } from '../utils/exportWord';
 import { AiEditQuestionModal, EditableQuestionItem } from './AiEditQuestionModal';
 import {
   computeMcInstruction,
@@ -42,7 +37,6 @@ interface ExamDocumentViewProps {
   onUpdateExam: (updated: ExamPackage) => void;
   onOpenSingleQuestionModal: () => void;
   onShuffleExam: () => void;
-  onOpenPrintModal?: () => void;
   onOpenValidateModal?: () => void;
 }
 
@@ -51,15 +45,12 @@ export const ExamDocumentView: React.FC<ExamDocumentViewProps> = ({
   onUpdateExam,
   onOpenSingleQuestionModal,
   onShuffleExam,
-  onOpenPrintModal,
   onOpenValidateModal,
 }) => {
   const [columnsMode, setColumnsMode] = useState<'1' | '2'>('1');
   const [fontFamily, setFontFamily] = useState<'times' | 'arial' | 'calibri'>('times');
   const [fontSize, setFontSize] = useState<'sm' | 'base' | 'lg'>('base');
   const [isEditable, setIsEditable] = useState(false);
-  const [isDownloadingWord, setIsDownloadingWord] = useState(false);
-  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [aiEditTarget, setAiEditTarget] = useState<EditableQuestionItem | null>(null);
 
   const { kopConfig, examSummary, multipleChoice, complexMultipleChoice, matching, shortAnswer, essay } =
@@ -473,7 +464,7 @@ export const ExamDocumentView: React.FC<ExamDocumentViewProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* View & Print Controls Toolbar */}
+      {/* Naskah controls: export and print remain in the application toolbar above. */}
       <div className="no-print bg-white p-3 rounded-xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center space-x-2">
           <span className="font-bold text-slate-700">Tampilan Naskah:</span>
@@ -578,60 +569,6 @@ export const ExamDocumentView: React.FC<ExamDocumentViewProps> = ({
             <span>Acak (Paket B)</span>
           </button>
 
-          {/* Quick Word & PDF Download */}
-          <button
-            type="button"
-            disabled={isDownloadingWord}
-            onClick={async () => {
-              setIsDownloadingWord(true);
-              try {
-                await exportExamToWord(exam, 'naskah', { columnsMode });
-              } finally {
-                setIsDownloadingWord(false);
-              }
-            }}
-            title="Unduh Naskah Ujian dalam format Microsoft Word (.docx)"
-            className="px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold flex items-center space-x-1.5 transition active:scale-95 shadow-2xs disabled:opacity-50"
-          >
-            {isDownloadingWord ? (
-              <Loader2 className="w-3.5 h-3.5 text-blue-700 animate-spin" />
-            ) : (
-              <FileText className="w-3.5 h-3.5 text-blue-700" />
-            )}
-            <span>{isDownloadingWord ? 'Menyiapkan...' : 'Word (.docx)'}</span>
-          </button>
-          <button
-            type="button"
-            disabled={isDownloadingPdf}
-            onClick={async () => {
-              setIsDownloadingPdf(true);
-              try {
-                await exportExamToPdf(exam, 'naskah', { columnsMode });
-              } finally {
-                setIsDownloadingPdf(false);
-              }
-            }}
-            title="Unduh Naskah Ujian dalam format PDF (.pdf)"
-            className="px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-900 font-bold flex items-center space-x-1.5 transition active:scale-95 shadow-2xs disabled:opacity-50"
-          >
-            {isDownloadingPdf ? (
-              <Loader2 className="w-3.5 h-3.5 text-rose-700 animate-spin" />
-            ) : (
-              <Download className="w-3.5 h-3.5 text-rose-700" />
-            )}
-            <span>{isDownloadingPdf ? 'Membuat PDF...' : 'PDF (.pdf)'}</span>
-          </button>
-
-          {/* Quick Print/PDF Action */}
-          {onOpenPrintModal && (
-            <button
-              onClick={onOpenPrintModal}
-              className="px-3.5 py-1.5 rounded-lg border border-blue-600 bg-blue-700 hover:bg-blue-800 text-white font-bold flex items-center space-x-1.5 transition active:scale-95 shadow-xs"
-            >
-              <Printer className="w-3.5 h-3.5 text-amber-300" />
-              <span>Cetak Dokumen</span>
-            </button>
-          )}
         </div>
       </div>
 

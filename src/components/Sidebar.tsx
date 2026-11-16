@@ -366,9 +366,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Desktop Sidebar: stays fixed while the main workspace scrolls */}
+      {/* Desktop Sidebar: full-height navigation, independent from the workspace scroll. */}
       <aside
-        className={`hidden md:block order-2 bg-white border-l border-slate-200 transition-all duration-300 ease-in-out shrink-0 sticky top-0 h-full z-30 select-none shadow-xs ${
+        className={`hidden md:block bg-white border-r border-slate-200 transition-all duration-300 ease-in-out h-screen z-30 select-none shadow-xs ${
           isCollapsed ? 'w-16' : 'w-64'
         }`}
       >
@@ -385,7 +385,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
 
           {/* Drawer content */}
-          <div className="relative ml-auto w-72 max-w-[85vw] bg-white h-full shadow-2xl z-10 animate-in slide-in-from-right duration-200">
+          <div className="relative mr-auto w-72 max-w-[85vw] bg-white h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200">
             {sidebarContent}
           </div>
         </div>
