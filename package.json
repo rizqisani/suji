@@ -24,7 +24,7 @@
     "@google/genai": "^2.32.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.1",
-    "better-sqlite3": "^12.4.1",
+    "better-sqlite3": "^13.2.0",
     "docx": "^9.15.1",
     "dotenv": "^17.2.3",
     "electron-updater": "^6.6.2",
@@ -144,7 +144,7 @@
   },
   "allowScripts": {
     "electron@45.3.2": true,
-    "better-sqlite3@12.11.1": true,
+    "better-sqlite3@13.2.0": true,
     "esbuild@0.28.2": true
   },
   "overrides": {
