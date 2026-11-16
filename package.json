@@ -2,6 +2,10 @@
   "name": "suji",
   "private": true,
   "version": "2.0.0",
+  "author": {
+    "name": "Rizqi Sani",
+    "email": "rizqisani@gmail.com"
+  },
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
