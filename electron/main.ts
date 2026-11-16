@@ -87,7 +87,7 @@ function createWindow(origin: string): void {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      preload: path.join(app.getAppPath(), 'dist-electron', 'preload.mjs'),
+      preload: path.join(app.getAppPath(), 'dist-electron', 'preload.cjs'),
     },
   });
 

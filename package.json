@@ -1,7 +1,7 @@
 {
   "name": "suji",
   "private": true,
-  "version": "2.0.3",
+  "version": "2.0.4",
   "author": {
     "name": "Rizqi Sani",
     "email": "rizqisani@gmail.com"
@@ -17,7 +17,7 @@
     "lint": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
     "build:desktop:main": "esbuild electron/main.ts --bundle --platform=node --format=esm --target=node22 --packages=external --outfile=dist-electron/main.mjs",
-    "build:desktop:preload": "esbuild electron/preload.ts --bundle --platform=browser --format=esm --target=es2022 --outfile=dist-electron/preload.mjs",
+    "build:desktop:preload": "esbuild electron/preload.ts --bundle --platform=browser --format=cjs --target=es2022 --packages=external --outfile=dist-electron/preload.cjs",
     "build:desktop": "npm run build:desktop:main && npm run build:desktop:preload && vite build --mode desktop",
     "dist:desktop": "npm run build:desktop && electron-builder --publish never && npm rebuild better-sqlite3"
   },
